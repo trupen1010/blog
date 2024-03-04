@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
@@ -17,7 +15,7 @@ class CategoryController extends Controller
     {
         if (auth()->guard('sanctum')->check()) {
             $categories = Category::get();
-            return response()->json(["status" => 200, "error" => 0, "message" => "Success", "categories" => $categories->toArray()], 200);
+            return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => $categories->toArray()], 200);
         }
         return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
@@ -60,9 +58,13 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        //
+        if (auth()->guard('sanctum')->check()) {
+            $categories = Category::find($id);
+            return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "categories" => $categories->toArray()], 200);
+        }
+        return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
 
     /**
@@ -113,7 +115,7 @@ class CategoryController extends Controller
                 return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
             }
             $category->delete();
-            return response()->json(["status" => 204, "error" => 0, "message" => "Category deleted successfully"], 204);
+            return response()->json(["status" => 200, "error" => 0, "message" => "Category deleted successfully"], 200);
         }
     }
 }

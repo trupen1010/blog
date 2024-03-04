@@ -32,14 +32,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        //
+        if (auth()->guard('sanctum')->check()) {
+            $categories = Category::find($id);
+            return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "categories" => $categories->toArray()], 200);
+        }
+        return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
 
     /**
@@ -47,7 +52,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
 
     /**
@@ -55,7 +60,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
 
     /**
@@ -63,6 +68,6 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
     }
 }

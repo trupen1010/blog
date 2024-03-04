@@ -19,12 +19,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/* Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-});
+}); */
 
+// Auth
 Route::get('tokens/create', [AuthController::class, 'guestUserCreateToken']);
 Route::get('admin/tokens/create', [AuthController::class, 'adminCreateToken']);
 
+// Category
 Route::apiResource('categories', CategoryController::class);
 Route::apiResource('admin/categories', AdminCategoryController::class);
