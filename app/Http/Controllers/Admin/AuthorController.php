@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Models\Author;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class CategoryController extends Controller
+class AuthorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,15 +17,15 @@ class CategoryController extends Controller
     {
         try {
             if (auth()->guard('sanctum')->check()) {
-                $categories = Category::get();
-                if (!$categories) {
-                    return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+                $author = Author::get();
+                if (!$author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => $categories->toArray()], 200);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Author Successfully", "author" => $author->toArray()], 200);
             }
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Index => " . $th);
+            Log::error("500 => AuthorController => Index => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -48,22 +48,21 @@ class CategoryController extends Controller
                 return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
             } else {
                 $validator = Validator::make($request->all(), [
-                    'name' => 'required|string|max:255',
-                    'slug' => 'required|string|unique:categories',
+                    'name' => 'required',
+                    'image' => 'required'
                 ]);
-
                 if ($validator->fails()) {
                     return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 422);
                 }
-
-                $category = Category::create([
+                $image = uploadFile(public_path() . '/images/Author/', $request->file('image'), false, true);
+                $author = Author::create([
                     'name' => $request->name,
-                    'slug' => $request->slug,
+                    'image' => $image
                 ]);
-                return response()->json(["status" => 201, "error" => 0, "message" => "Category created successfully", "data" => $category->toArray(),], 201);
+                return response()->json(["status" => 201, "error" => 0, "message" => "Author created successfully", "data" => $author->toArray()], 201);
             }
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Store => " . $th);
+            Log::error("500 => AuthorController => Store => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -75,15 +74,15 @@ class CategoryController extends Controller
     {
         try {
             if (auth()->guard('sanctum')->check()) {
-                $category = Category::find($id);
-                if (!$category) {
-                    return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+                $author = Author::find($id);
+                if (!$author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "categories" => $category->toArray()], 200);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Author Successfully", "author" => $author->toArray()], 200);
             }
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Show => " . $th);
+            Log::error("500 => AuthorController => Show => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -105,28 +104,26 @@ class CategoryController extends Controller
             if (!auth()->guard('sanctum')->check()) {
                 return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
             } else {
-                $category = Category::find($id);
-                if (!$category) {
-                    return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+                $author = Author::find($id);
+                if (!$author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
 
-                $validator = Validator::make($request->all(), [
-                    'name' => 'nullable|string|max:255',
-                    'slug' => 'nullable|string|unique:categories,slug,' . $category->id,
+                $image = updateFile(public_path() . '/images/Author/', $author->image, $request->file('image'), false, true);
+
+                $request->validate([
+                    'name' => 'required',
+                    'image' => 'required',
                 ]);
 
-                if ($validator->fails()) {
-                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 422);
-                }
-
-                $category->update([
+                $author->update([
                     'name' => $request->name,
-                    'slug' => $request->slug,
+                    'image' => $image,
                 ]);
-                return response()->json(["status" => 200, "error" => 0, "message" => "Category updated successfully", "data" => $category->toArray()], 200);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Author updated successfully", "data" => $author->toArray()], 200);
             }
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Update => " . $th);
+            Log::error("500 => AuthorController => Update => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -140,15 +137,15 @@ class CategoryController extends Controller
             if (!auth()->guard('sanctum')->check()) {
                 return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
             } else {
-                $category = Category::find($id);
-                if (!$category) {
-                    return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+                $author = Author::find($id);
+                if (!$author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
-                $category->delete();
-                return response()->json(["status" => 200, "error" => 0, "message" => "Category deleted successfully"], 200);
+                $author->delete();
+                return response()->json(["status" => 200, "error" => 0, "message" => "Author deleted successfully"], 200);
             }
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Delete => " . $th);
+            Log::error("500 => AuthorController => Delete => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Log;
 
-class CategoryController extends Controller
+class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,15 +14,15 @@ class CategoryController extends Controller
     {
         try {
             if (auth()->guard('sanctum')->check()) {
-                $categories = Category::get();
-                if (!$categories) {
-                    return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+                $tags = Tag::get();
+                if (!$tags) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Tags not found"], 404);
                 }
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => $categories->toArray()], 201);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Tags Successfully", "tags" => $tags->toArray()], 201);
             }
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Index => " . $th);
+            Log::error("500 => TagController => Index => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -50,12 +50,12 @@ class CategoryController extends Controller
     {
         try {
             if (auth()->guard('sanctum')->check()) {
-                $category = Category::find($id);
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "category" => $category->toArray()], 200);
+                $tag = Tag::find($id);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Tag Successfully", "tag" => $tag->toArray()], 200);
             }
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Show => " . $th);
+            Log::error("500 => TagController => Show => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }

@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('title');
             $table->string('sub_title');
             $table->date('publish_date');
+            $table->string('image');
+            $table->text('description');
             $table->timestamps();
         });
     }

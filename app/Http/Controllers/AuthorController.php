@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Author;
 use Illuminate\Support\Facades\Log;
 
-class CategoryController extends Controller
+class AuthorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,15 +14,15 @@ class CategoryController extends Controller
     {
         try {
             if (auth()->guard('sanctum')->check()) {
-                $categories = Category::get();
-                if (!$categories) {
-                    return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+                $author = Author::get();
+                if ($author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => $categories->toArray()], 201);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Author Successfully", "author" => $author->toArray()], 200);
             }
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Index => " . $th);
+            Log::error("500 => AuthorController => Index => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -50,12 +50,15 @@ class CategoryController extends Controller
     {
         try {
             if (auth()->guard('sanctum')->check()) {
-                $category = Category::find($id);
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "category" => $category->toArray()], 200);
+                $author = Author::find($id);
+                if (!$author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Author Successfully", "author" => $author->toArray()], 200);
             }
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
-            Log::error("500 => CategoryController => Show => " . $th);
+            Log::error("500 => AuthorController => Show => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
