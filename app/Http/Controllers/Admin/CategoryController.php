@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -26,6 +27,25 @@ class CategoryController extends Controller
             return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Index => " . $th);
+            return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
+        }
+    }
+
+
+
+    public function datatable()
+    {
+        try {
+            if (auth()->guard('sanctum')->check()) {
+                $categories = Category::orderBy('id', 'DESC')->get(['id', 'name', 'created_at']);
+                if (!$categories) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => CategoryResource::collection($categories)], 200);
+            }
+            return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+        } catch (\Throwable $th) {
+            Log::error("500 => CategoryController => Datatable => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }

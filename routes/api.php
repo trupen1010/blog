@@ -31,6 +31,7 @@ Route::get('tokens/check-expiration', [AuthController::class, 'checkExpiration']
 
 // Category
 Route::apiResource('categories', CategoryController::class);
+Route::get('admin/categories-datatable', [AdminCategoryController::class, 'datatable']);
 Route::apiResource('admin/categories', AdminCategoryController::class);
 
 // Tag

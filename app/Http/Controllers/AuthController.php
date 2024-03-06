@@ -36,7 +36,7 @@ class AuthController extends Controller
             if (auth()->guard('sanctum')->check()) {
                 return response()->json(["status" => 200, "error" => 0, "message" => "Token Authenticated Successfully."], 200);
             } else {
-                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 401);
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
             }
         } catch (\Throwable $th) {
             Log::error("500 => AuthController => CheckExpiration => " . $th);

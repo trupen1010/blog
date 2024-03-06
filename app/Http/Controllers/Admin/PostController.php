@@ -18,7 +18,7 @@ class PostController extends Controller
         try {
             if (auth()->guard('sanctum')->check()) {
                 $posts = Post::get();
-                if ($posts) {
+                if (!$posts) {
                     return response()->json(["status" => 404, "error" => 1, "message" => "Post not found"], 404);
                 }
                 return response()->json(["status" => 200, "error" => 0, "message" => "Get Post Successfully", "posts" => $posts->toArray()], 200);
