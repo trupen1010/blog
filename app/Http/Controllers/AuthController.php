@@ -53,8 +53,9 @@ class AuthController extends Controller
                 $user = User::find(Auth::id());
                 $token = $user->createToken('auth_token')->plainTextToken;
                 return response()->json(['status' => 200, 'token' => $token]);
+            } else {
+                return response()->json(['status' => 401, 'message' => "User Not Found."]);
             }
-            return response()->json(['status' => 401, 'message' => 'Unauthorized'], 401);
         } catch (\Throwable $th) {
             Log::error("500 => AuthController => CheckExpiration => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);

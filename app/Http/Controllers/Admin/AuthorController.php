@@ -94,10 +94,7 @@ class AuthorController extends Controller
     {
         return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
     }
-
-
-
-
+    
     /**
      * Update the specified resource in storage.
      */
