@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Route;
 
 // Auth
 
+Route::post('admin/login', [AuthController::class, 'adminLogin']);
+
 Route::get('tokens/create', [AuthController::class, 'guestUserCreateToken']);
 Route::get('admin/tokens/create', [AuthController::class, 'adminCreateToken']);
 Route::get('tokens/check-expiration', [AuthController::class, 'checkExpiration']);
