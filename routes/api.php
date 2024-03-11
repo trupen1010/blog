@@ -23,27 +23,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Auth
+//! Auth
 
 Route::post('admin/login', [AuthController::class, 'adminLogin']);
+Route::get('admin/logout', [AuthController::class, 'adminLogout']);
 
 Route::get('tokens/create', [AuthController::class, 'guestUserCreateToken']);
 Route::get('admin/tokens/create', [AuthController::class, 'adminCreateToken']);
 Route::get('tokens/check-expiration', [AuthController::class, 'checkExpiration']);
 
-// Category
+Route::middleware('auth:sanctum')->group(function () {
+    //! Category
+    Route::get('admin/categories-datatable', [AdminCategoryController::class, 'datatable']);
+    Route::apiResource('admin/categories', AdminCategoryController::class);
+    //! Tag
+    Route::apiResource('admin/tags', AdminTagController::class);
+    //! Author
+    Route::apiResource('admin/authors', AdminAuthorController::class);
+    //! Post
+    Route::apiResource('admin/posts', AdminPostController::class);
+});
+
+//! Category
 Route::apiResource('categories', CategoryController::class);
-Route::get('admin/categories-datatable', [AdminCategoryController::class, 'datatable']);
-Route::apiResource('admin/categories', AdminCategoryController::class);
 
-// Tag
+//! Tag
 Route::apiResource('tags', TagController::class);
-Route::apiResource('admin/tags', AdminTagController::class);
 
-// Author
+//! Author
 Route::apiResource('authors', AuthorController::class);
-Route::apiResource('admin/authors', AdminAuthorController::class);
 
-// Post
+//! Post
 Route::apiResource('posts', PostController::class);
-Route::apiResource('admin/posts', AdminPostController::class);
+

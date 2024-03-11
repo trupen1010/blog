@@ -69,6 +69,11 @@ class PostController extends Controller
                     'image' => $image,
                     'description' => $request->description,
                 ]);
+
+                $post->post_category->create([
+                    "post_id" => $post->id,
+                    "category_id" => $request->category_id
+                ]);
                 return response()->json(["status" => 201, "error" => 0, "message" => "Post created successfully", "data" => $post->toArray()], 201);
             }
         } catch (\Throwable $th) {
