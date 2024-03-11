@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AuthorResource;
 use App\Models\Author;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,29 @@ class AuthorController extends Controller
     }
 
     /**
+     * datatable
+     *
+     * @return void
+     */
+    public function datatable()
+    {
+        try {
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $author = Author::orderBy('id', 'DESC')->get(['id', 'name', 'image']);
+                if (!$author) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Authors not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get author Successfully", "authors" => AuthorResource::collection($author)], 200);
+            }
+        } catch (\Throwable $th) {
+            Log::error("500 => AuthorController => Datatable => " . $th);
+            return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
+        }
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -49,10 +73,10 @@ class AuthorController extends Controller
             } else {
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
-                    'image' => 'required'
+                    'image' => 'required|image'
                 ]);
                 if ($validator->fails()) {
-                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 422);
+                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 200);
                 }
                 $image = uploadFile(public_path() . '/images/Author/', $request->file('image'), false, true);
                 $author = Author::create([
@@ -94,7 +118,7 @@ class AuthorController extends Controller
     {
         return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
     }
-    
+
     /**
      * Update the specified resource in storage.
      */
@@ -108,14 +132,16 @@ class AuthorController extends Controller
                 if (!$author) {
                     return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
-
                 $image = updateFile(public_path() . '/images/Author/', $author->image, $request->file('image'), false, true);
 
-                $request->validate([
+                $validator = Validator::make($request->all(), [
                     'name' => 'required',
-                    'image' => 'required',
+                    'image' => 'image',
                 ]);
 
+                if ($validator->fails()) {
+                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 200);
+                }
                 $author->update([
                     'name' => $request->name,
                     'image' => $image,

@@ -160,7 +160,7 @@ class CategoryController extends Controller
                 ]);
 
                 if ($validator->fails()) {
-                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 422);
+                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 200);
                 }
 
                 $category->update([

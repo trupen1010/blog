@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/tags-datatable', [AdminTagController::class, 'datatable']);
     Route::apiResource('admin/tags', AdminTagController::class);
     //! Author
+    Route::get('admin/authors-datatable', [AdminAuthorController::class, 'datatable']);
     Route::apiResource('admin/authors', AdminAuthorController::class);
     //! Post
     Route::apiResource('admin/posts', AdminPostController::class);
@@ -56,4 +57,3 @@ Route::apiResource('authors', AuthorController::class);
 
 //! Post
 Route::apiResource('posts', PostController::class);
-
