@@ -13,7 +13,7 @@ class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
-     */    
+     */
     /**
      * index
      *
@@ -22,11 +22,15 @@ class CategoryController extends Controller
     public function index()
     {
         try {
-            $categories = Category::get();
-            if (!$categories) {
-                return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $categories = Category::get();
+                if (!$categories) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => $categories->toArray()], 200);
             }
-            return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => $categories->toArray()], 200);
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Index => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
@@ -34,7 +38,7 @@ class CategoryController extends Controller
     }
 
 
-    
+
     /**
      * datatable
      *
@@ -43,11 +47,15 @@ class CategoryController extends Controller
     public function datatable()
     {
         try {
-            $categories = Category::orderBy('id', 'DESC')->get(['id', 'name', 'created_at']);
-            if (!$categories) {
-                return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $categories = Category::orderBy('id', 'DESC')->get(['id', 'name', 'created_at']);
+                if (!$categories) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Categories not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => CategoryResource::collection($categories)], 200);
             }
-            return response()->json(["status" => 200, "error" => 0, "message" => "Get Categories Successfully", "categories" => CategoryResource::collection($categories)], 200);
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Datatable => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
@@ -70,23 +78,26 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        try { 
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'slug' => 'required|string|unique:categories',
-            ]);
+        try {
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $validator = Validator::make($request->all(), [
+                    'name' => 'required|string|max:255',
+                    'slug' => 'required|string|unique:categories',
+                ]);
 
-            if ($validator->fails()) {
-                return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 200);
+                if ($validator->fails()) {
+                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 200);
+                }
+
+                $category = Category::create([
+                    'name' => $request->name,
+                    'slug' => $request->slug,
+                ]);
+
+                return response()->json(["status" => 201, "error" => 0, "message" => "Category created successfully", "data" => $category->toArray(),], 201);
             }
-
-            $category = Category::create([
-                'name' => $request->name,
-                'slug' => $request->slug,
-            ]);
-
-            return response()->json(["status" => 201, "error" => 0, "message" => "Category created successfully", "data" => $category->toArray(),], 201);
-            
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Store => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
@@ -102,11 +113,15 @@ class CategoryController extends Controller
     public function show($id)
     {
         try {
-            $category = Category::find($id);
-            if (!$category) {
-                return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $category = Category::find($id);
+                if (!$category) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "categories" => $category->toArray()], 200);
             }
-            return response()->json(["status" => 200, "error" => 0, "message" => "Get Category Successfully", "categories" => $category->toArray()], 200);
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Show => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
@@ -131,32 +146,35 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $category = Category::find($id);
-            if (!$category) {
-                return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $category = Category::find($id);
+                if (!$category) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+                }
+
+                $validator = Validator::make($request->all(), [
+                    'name' => 'nullable|string|max:255',
+                    'slug' => 'nullable|string|unique:categories,slug,' . $category->id,
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 422);
+                }
+
+                $category->update([
+                    'name' => $request->name,
+                    'slug' => $request->slug,
+                ]);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Category updated successfully", "data" => $category->toArray()], 200);
             }
-
-            $validator = Validator::make($request->all(), [
-                'name' => 'nullable|string|max:255',
-                'slug' => 'nullable|string|unique:categories,slug,' . $category->id,
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 422);
-            }
-
-            $category->update([
-                'name' => $request->name,
-                'slug' => $request->slug,
-            ]);
-            return response()->json(["status" => 200, "error" => 0, "message" => "Category updated successfully", "data" => $category->toArray()], 200);
-            
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Update => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
-    
+
     /**
      * destroy
      *
@@ -166,12 +184,16 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-            $category = Category::find($id);
-            if (!$category) {
-                return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $category = Category::find($id);
+                if (!$category) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Category not found"], 404);
+                }
+                $category->delete();
+                return response()->json(["status" => 200, "error" => 0, "message" => "Category deleted successfully"], 200);
             }
-            $category->delete();
-            return response()->json(["status" => 200, "error" => 0, "message" => "Category deleted successfully"], 200);
         } catch (\Throwable $th) {
             Log::error("500 => CategoryController => Delete => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);

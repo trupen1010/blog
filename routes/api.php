@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('admin/categories-datatable', [AdminCategoryController::class, 'datatable']);
     Route::apiResource('admin/categories', AdminCategoryController::class);
     //! Tag
+    Route::get('admin/tags-datatable', [AdminTagController::class, 'datatable']);
     Route::apiResource('admin/tags', AdminTagController::class);
     //! Author
     Route::apiResource('admin/authors', AdminAuthorController::class);

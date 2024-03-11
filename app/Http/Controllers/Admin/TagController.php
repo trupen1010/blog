@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -16,16 +17,40 @@ class TagController extends Controller
     public function index()
     {
         try {
-            if (auth()->guard('sanctum')->check()) {
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
                 $tags = Tag::get();
                 if (!$tags) {
                     return response()->json(["status" => 404, "error" => 1, "message" => "Tags not found"], 404);
                 }
                 return response()->json(["status" => 200, "error" => 0, "message" => "Get Tags Successfully", "tags" => $tags->toArray()], 200);
             }
-            return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
             Log::error("500 => TagController => Index => " . $th);
+            return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
+        }
+    }
+
+    /**
+     * datatable
+     *
+     * @return void
+     */
+    public function datatable()
+    {
+        try {
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
+                $tags = Tag::orderBy('id', 'DESC')->get(['id', 'name', 'created_at']);
+                if (!$tags) {
+                    return response()->json(["status" => 404, "error" => 1, "message" => "Tags not found"], 404);
+                }
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get tags Successfully", "tags" => TagResource::collection($tags)], 200);
+            }
+        } catch (\Throwable $th) {
+            Log::error("500 => TagController => Datatable => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
         }
     }
@@ -74,14 +99,15 @@ class TagController extends Controller
     public function show($id)
     {
         try {
-            if (auth()->guard('sanctum')->check()) {
+            if (!auth()->guard('sanctum')->check()) {
+                return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
+            } else {
                 $tag = Tag::find($id);
                 if (!$tag) {
                     return response()->json(["status" => 404, "error" => 1, "message" => "Tag not found"], 404);
                 }
-                return response()->json(["status" => 200, "error" => 0, "message" => "Get Tag Successfully", "Tag" => $tag->toArray()], 200);
+                return response()->json(["status" => 200, "error" => 0, "message" => "Get Tag Successfully", "tag" => $tag->toArray()], 200);
             }
-            return response()->json(["status" => 401, "error" => 1, "message" => "Unauthorized access"], 200);
         } catch (\Throwable $th) {
             Log::error("500 => TagController => Show => " . $th);
             return response()->json(["status" => 500, "error" => 1, "message" => "Getting Some Error, Please Try Again."], 500);
