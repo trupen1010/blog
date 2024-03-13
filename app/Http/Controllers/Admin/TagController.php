@@ -137,8 +137,8 @@ class TagController extends Controller
                 }
 
                 $validator = Validator::make($request->all(), [
-                    'name' => 'nullable|string|max:255',
-                    'slug' => 'nullable|string|unique:tags,slug,' . $tag->id,
+                    'name' => 'required|string|max:255',
+                    'slug' => 'required|string|unique:tags,slug,' . $tag->id,
                 ]);
 
                 if ($validator->fails()) {

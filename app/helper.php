@@ -68,100 +68,58 @@ if (!function_exists('uploadFile')) {
 }
 
 // Update File
-/* if (!function_exists('updateFile')) {
-    function updateFile($path, $existingFileNames, $files, $includeFileInfo = false, $includeThumbnail = false)
-    {
-        $allowedDocumentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'jpg', 'jpeg', 'png', 'gif'];
-        $return = [];
-
-        File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
-
-        if (!is_array($existingFileNames)) {
-            $existingFileNames = [$existingFileNames];
-        }
-
-        foreach ($existingFileNames as $index => $existingFileName) {
-            $file = is_array($files) ? $files[$index] : $files;
-            $fileExtension = strtolower($file->extension());
-
-            if (in_array($fileExtension, $allowedDocumentExtensions)) {
-                $imageName = $existingFileName;
-                $fileData = ['imageName' => $imageName];
-
-                if ($includeFileInfo) {
-                    $fileSize = $file->getSize();
-                    $fileData['fileSize'] = formatFileSize($fileSize);
-                    $fileData['fileType'] = $file->getClientMimeType();
-                }
-
-                $mime = $file->getMimeType();
-                if ($includeThumbnail && str_starts_with($mime, 'image/')) {
-                    $thumbnailPath = $path . 'thumbnails/' . $imageName;
-                    generateThumbnail($file->getPathname(), $thumbnailPath, 120, 120);
-                    $fileData['thumbnailPath'] = $thumbnailPath;
-                }
-
-                if ($file->move($path, $imageName)) {
-                    $return[] = $includeFileInfo ? $fileData : $imageName;
-                }
-            }
-        }
-        return $return;
-    }
-} */
-
 if (!function_exists('updateFile')) {
-    function updateFile($path, $existingFileNames, $files, $includeFileInfo = false, $includeThumbnail = false)
+    function updateFile($path, $existingFileNames, $files, $includeFileInfo = false, $includeThumbnail = false, $isReturnArray = true)
     {
         $allowedDocumentExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'jpg', 'jpeg', 'png', 'gif'];
         $return = [];
 
         File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
-
+        $returnExistingFilesName = $existingFileNames;
         if (!is_array($existingFileNames)) {
             $existingFileNames = [$existingFileNames];
         }
 
         foreach ($existingFileNames as $index => $existingFileName) {
-            if (!isset($files[$index])) {
-                continue; // Skip if file is not found in the array
-            }
-
             $file = is_array($files) ? $files[$index] : $files;
+            if (!empty($file)) {
+                $fileExtension = strtolower($file->extension());
+                if (in_array($fileExtension, $allowedDocumentExtensions)) {
+                    $imageName = $existingFileName;
+                    $fileData = ['imageName' => $imageName];
 
-            // Add null check for $file
-            if ($file === null) {
-                continue; // Skip if file is null
-            }
+                    if ($includeFileInfo) {
+                        $fileSize = $file->getSize();
+                        $fileData['fileSize'] = formatFileSize($fileSize);
+                        $fileData['fileType'] = $file->getClientMimeType();
+                    }
 
-            $fileExtension = strtolower($file->extension());
+                    $mime = $file->getMimeType();
+                    if ($includeThumbnail && str_starts_with($mime, 'image/')) {
+                        $thumbnailPath = $path . 'thumbnails/' . $imageName;
+                        generateThumbnail($file->getPathname(), $thumbnailPath, 120, 120);
+                        $filePath = public_path() . $path . 'thumbnails/' . $existingFileName;
+                        deleteImage($filePath);
+                        $fileData['thumbnailPath'] = $thumbnailPath;
+                    }
 
-            if (in_array($fileExtension, $allowedDocumentExtensions)) {
-                $imageName = $existingFileName;
-                $fileData = ['imageName' => $imageName];
-
-                if ($includeFileInfo) {
-                    $fileSize = $file->getSize();
-                    $fileData['fileSize'] = formatFileSize($fileSize);
-                    $fileData['fileType'] = $file->getClientMimeType();
+                    if ($file->move($path, $imageName)) {
+                        $filePath = public_path() . $path . $existingFileName;
+                        deleteImage($filePath);
+                        $return[] = $includeFileInfo ? $fileData : $imageName;
+                    }
                 }
-
-                $mime = $file->getMimeType();
-                if ($includeThumbnail && str_starts_with($mime, 'image/')) {
-                    $thumbnailPath = $path . 'thumbnails/' . $imageName;
-                    generateThumbnail($file->getPathname(), $thumbnailPath, 120, 120);
-                    $fileData['thumbnailPath'] = $thumbnailPath;
-                }
-
-                if ($file->move($path, $imageName)) {
-                    $return[] = $includeFileInfo ? $fileData : $imageName;
-                }
+            } else {
+                return $returnExistingFilesName;
             }
         }
-        return $return;
+        if ($isReturnArray) {
+            return $return;
+        } else {
+            return $return[0];
+        }
     }
 }
-
 
 // START Generate Thumbnail
 if (!function_exists('generateThumbnail')) {

@@ -41,8 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('admin/tags', AdminTagController::class);
     //! Author
     Route::get('admin/authors-datatable', [AdminAuthorController::class, 'datatable']);
-    Route::apiResource('admin/authors', AdminAuthorController::class);
+    Route::post('admin/authors/{id}', [AdminAuthorController::class, 'update']);
+    Route::apiResource('admin/authors', AdminAuthorController::class)->except('update');
     //! Post
+    Route::get('admin/posts-datatable', [AdminPostController::class, 'datatable']);
+    Route::post('admin/posts/{id}', [AdminPostController::class, 'update']);
     Route::apiResource('admin/posts', AdminPostController::class);
 });
 

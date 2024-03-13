@@ -132,20 +132,29 @@ class AuthorController extends Controller
                 if (!$author) {
                     return response()->json(["status" => 404, "error" => 1, "message" => "Author not found"], 404);
                 }
-                $image = updateFile(public_path() . '/images/Author/', $author->image, $request->file('image'), false, true);
 
                 $validator = Validator::make($request->all(), [
                     'name' => 'required',
-                    'image' => 'image',
+                    'image' => 'nullable|image',
                 ]);
 
                 if ($validator->fails()) {
                     return response()->json(["status" => 422, "error" => 1, "message" => "Validation failed", "errors" => $validator->errors()->toArray()], 200);
                 }
+
+                /* if (isset($request->image) && !empty($request->image)) {
+                    $image = uploadFile(public_path() . '/images/Author/', $request->file('image'), false, true);
+                    deleteImage(public_path() . '/images/Author/' . $author->image);
+                    deleteImage(public_path() . '/images/Author/thumbnails/' . $author->image);
+                } else {
+                    $image = $author->image;
+                } */
+                $image = updateFile(public_path() . '/images/Author/', $author->image, $request->file('image'), false, true, false);
                 $author->update([
                     'name' => $request->name,
                     'image' => $image,
                 ]);
+
                 return response()->json(["status" => 200, "error" => 0, "message" => "Author updated successfully", "data" => $author->toArray()], 200);
             }
         } catch (\Throwable $th) {

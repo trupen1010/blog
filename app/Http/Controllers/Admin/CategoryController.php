@@ -155,8 +155,8 @@ class CategoryController extends Controller
                 }
 
                 $validator = Validator::make($request->all(), [
-                    'name' => 'nullable|string|max:255',
-                    'slug' => 'nullable|string|unique:categories,slug,' . $category->id,
+                    'name' => 'required|string|max:255',
+                    'slug' => 'required|string|unique:categories,slug,' . $category->id,
                 ]);
 
                 if ($validator->fails()) {
