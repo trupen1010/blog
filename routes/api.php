@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthorController as AdminAuthorController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\HomeController as AdminHomeController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\AuthController;
@@ -9,7 +10,6 @@ use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TagController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +33,8 @@ Route::get('admin/tokens/create', [AuthController::class, 'adminCreateToken']);
 Route::get('tokens/check-expiration', [AuthController::class, 'checkExpiration']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    //! Home-Chart
+    Route::get('admin/chart-data', [AdminHomeController::class, 'index']);
     //! Category
     Route::get('admin/categories-datatable', [AdminCategoryController::class, 'datatable']);
     Route::apiResource('admin/categories', AdminCategoryController::class);
